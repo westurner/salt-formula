@@ -1,0 +1,84 @@
+
+{% set salt = pillar.get('salt', {}) -%}
+{% set master = salt.get('master', {}) -%}
+
+# Path to ext. pillars
+extension_modules: /srv/salt/ext
+
+ext_pillar:
+  - pepa:
+      resource: host
+      sequence:
+        - hostname:
+            name: hostname
+            base_only: True
+        - default:
+        - environment:
+        - location..region:
+            name: region
+        - location..continent:
+            name: continent
+        - location..country:
+            name: country
+        - location..state:
+            name: state
+        - location..city:
+            name: city
+        - location..postal:
+            name: postal
+        - location..datacenter:
+            name: datacenter
+        - location..zone:
+            name: zone
+        - roles:
+        - osfinger:
+        - hostname:
+            base_only: True  
+
+{% if 'pepa_grains' in master -%}
+pepa_grains:
+{%- for key, value in master['pepa_grains']|dictsort %}    
+  {{ key }}: {{ value }}
+{%- endfor -%}
+{% else -%}
+pepa_grains:
+  osfinger: Ubuntu-12.04
+{%- endif %}
+
+# Path for Pepa templates
+{% if 'pepa_roots' in master -%}
+pepa_roots:
+{%- for name, roots in master['pepa_roots']|dictsort %}
+  {{ name }}:
+{%- for dir in roots %}
+    - {{ dir }}
+{%- endfor -%}
+{%- endfor -%}
+{% elif 'pepa_roots' in salt -%}
+pepa_roots:
+{%- for name, roots in salt['pepa_roots']|dictsort %}
+  {{ name }}:
+{%- for dir in roots %}
+    - {{ dir }}
+{%- endfor -%}
+{%- endfor -%}
+{% else -%}
+pepa_roots:
+  base:
+    - /srv/salt
+{%- endif %}
+
+# Delimiter used in Pepa templates for nested keys
+pepa_delimiter: ..
+
+# Include Pepa sub key in pillar output
+pepa_subkey: True
+
+#pepa_subkey_only: True
+
+#log_level: debug
+
+#log_granular_levels:
+#  salt: warning
+#  salt.loaded.ext.pillar.pepa: debug
+
