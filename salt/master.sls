@@ -25,3 +25,17 @@ salt-master:
 remove-old-master-conf-file:
   file.absent:
     - name: /etc/salt/master.d/_defaults.conf
+
+/etc/salt:
+  file.directory:
+    - user: root
+    - group: root
+    - dir_mode: 0755
+
+/etc/salt/master.d:
+  file.directory:
+    - user: root
+    - group: root
+    - dir_mode: 0755
+    - require:
+      - file: /etc/salt
